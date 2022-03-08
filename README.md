@@ -1,2 +1,1 @@
-# GithubRepoSearch
-search for repositories by name and description on github
+[Demo](https://github-search-native-js.vercel.app/)

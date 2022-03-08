@@ -1,14 +1,4 @@
-const debounce = (fn, debounceTime) => {
-    let timer;
-    return function(...args) {
-        clearTimeout(timer);
-        timer = setTimeout(()=> {
-            fn.apply(this, args);
-        }, debounceTime)
-    }
-};
-
-
+let temp = 100;
 
 class View {
     constructor() {
@@ -20,9 +10,7 @@ class View {
 
         this.searchLine = this.createElement('div', 'search-line');
         this.searchInput = this.createElement('input', 'search-input');
-        this.searchCounter = this.createElement('span', 'counter');
         this.searchLine.append(this.searchInput);
-        this.searchLine.append(this.searchCounter);
 
         this.usersWrapper = this.createElement('div', 'users-wrapper');
         this.usersList = this.createElement('ul', 'users')
@@ -40,6 +28,7 @@ class View {
         this.app.append(this.main);
     }
 
+
     createElement(elementTag, elementClass) {
         const element = document.createElement(elementTag);
         if (elementClass) {
@@ -47,6 +36,7 @@ class View {
         }
         return element
     }
+
 
     clearResult(){
         let list = document.querySelectorAll('.user-list-item');
@@ -58,31 +48,33 @@ class View {
         }
     }
 
+    createSearchElement(name, id){
+        const elem = document.createElement('li');
+        elem.classList.add('user-list-item');
+        elem.innerText = name;
+        elem.id = id;
+        this.usersList.append(elem);
+        return elem;
+    }
 
-
-
+// выпадающее меню в поиске
     createSearchResult(repo, results, id) {
-        let mainListElement = document.createElement('li');
-        mainListElement.classList.add('user-list-item');
-        mainListElement.innerText = repo;
-        mainListElement.id = id;
-        this.usersList.append(mainListElement);
-        let list = document.querySelectorAll('.user-list-item');
+        const mainListElement = this.createSearchElement(repo, id);
+        const list = document.querySelectorAll('.user-list-item');
         mainListElement.addEventListener('click', (e) => {
-            for (let li of list) {
-                for (let res of results) {
+            list.forEach(li => {
+                results.forEach(res => {
                     if (e.target === li && +li.id === res.id) {
-                        console.log(res)
                         this.createResult(res);
                         this.searchInput.value = '';
                     }
-                }
-            }
+                })
+            })
         })
-
     }
 
 
+// Кликнутые результаты поиска
     createResult(res) {
         let result = this.createElement('div', `main-result`);
         let title = this.createElement('span', `main-title`);
@@ -110,13 +102,10 @@ class View {
 }
 
 
-
-
-
 class Search{
     constructor(view) {
         this.view = view;
-        this.view.searchInput.addEventListener('keyup', debounce(this.searchUsers.bind(this), 300));
+        this.view.searchInput.addEventListener('keyup', this.debounce(this.searchUsers.bind(this), 300));
         this.view.results = [];
     }
 
@@ -130,24 +119,29 @@ class Search{
                 }
             })
             .then(res => {
-                //console.log(res);
-
                 for (let repo of res.items) {
-                   // console.log(repo);
                     this.view.createSearchResult(repo.name, this.view.results, repo.id);
                     this.view.results.push(repo);
-
-                    //console.log(this.view.results)
                 }
-
             })
             .catch(err => console.log(err));
     };
 
+
+    debounce(fn, debounceTime)  {
+        let timer;
+        return function(...args) {
+            clearTimeout(timer);
+            timer = setTimeout(()=> {
+                fn.apply(this, args);
+            }, debounceTime)
+        }
+    };
+
+
 }
 
-new Search(new View());
-
+let app = new Search(new View());
 
 
 
