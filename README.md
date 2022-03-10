@@ -1,1 +1,1 @@
-[Demo](https://github-search-native-js.vercel.app/)
+[Demo](https://sensi44.github.io/GithubRepoSearch/)
